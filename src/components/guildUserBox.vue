@@ -8,7 +8,7 @@
       <v-container>
         <v-row>
           <v-col v-for="character in have()" :key="character.id" class="px-0 py-0">
-            <v-card width="60" height="70" flat :color="character.isEditted ? 'white':'red lighten-4'">
+            <v-card width="65" height="70" flat :color="character.isEditted ? 'white':'red lighten-4'">
               <div class="d-flex flex-column jusitfy-center align-center" min-height=70>
                 <v-img width="50px" height="50px" :src="character.imgpath" :style="character.isTrained ? '':'opacity:0.5'"></v-img>
                 <div class="d-flex justify-center align-center" min-height=100>
@@ -16,7 +16,7 @@
                     width="15"
                     height="15"
                     class="mx-0 my-0 d-flex justify-center align-center"
-                    v-for="index in new Array(character.defaultStar)"
+                    v-for="index in new Array(character.userStar)"
                     :key="index"
                     :style="character.isTrained ? '':'opacity:0.5'"
                   >
@@ -34,7 +34,7 @@
       <v-container>
         <v-row>
           <v-col v-for="character in notHave()" :key="character.id" class="px-0 py-0">
-            <v-card width="60" height="70" flat>
+            <v-card width="65" height="70" flat>
               <div class="d-flex flex-column jusitfy-center align-center" min-height=70>
                 <v-img width="50px" height="50px" :src="character.imgpath"></v-img>
                 <div class="d-flex justify-center align-center" min-height=100>
