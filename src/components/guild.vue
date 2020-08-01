@@ -10,7 +10,7 @@
             <v-icon>mdi-minus</v-icon>
           </v-btn>
           Round: {{roundNum}}
-          <v-btn icon @click="roundNum+=1">
+          <v-btn icon @click="roundPlus">
             <v-icon>mdi-plus</v-icon>
           </v-btn>
         </v-card>
@@ -191,7 +191,14 @@ export default {
     roundMinus: function() {
       if (this.roundNum > 1) {
         this.roundNum -= 1;
+        const Cookies=require("js-cookie")
+        Cookies.set("roundNumber",this.roundNum,{ expires: 7 })
       }
+    },
+    roundPlus:function(){
+        this.roundNum += 1;
+        const Cookies=require("js-cookie")
+        Cookies.set("roundNumber",this.roundNum,{ expires: 7 })
     },
     getBossDam: function(roundNum, bossNum) {
       var max = this.info[`bossHP_${bossNum}`];
@@ -220,6 +227,12 @@ export default {
         }
       }
       return { max: max, min: min };
+    }
+  },
+  created:function(){
+    const Cookies=require("js-cookie")
+    if(Cookies.get("roundNumber")){
+      this.roundNum=Cookies.get("roundNumber")
     }
   }
 };

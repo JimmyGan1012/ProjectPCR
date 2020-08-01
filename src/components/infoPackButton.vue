@@ -17,7 +17,7 @@
                     <v-img max-width=35 max-height=35 :src="arrangement.slot4.imgpath" :style="arrangement.played==1 ? 'opacity:0.3':''" ></v-img>
                     <v-img max-width=35 max-height=35 :src="arrangement.slot5.imgpath" :style="arrangement.played==1 ? 'opacity:0.3':''"></v-img>
                     <div class="d-flex align-center text-caption">
-                        <span v-if="arrangement.expectedDamage==0 && arrangement.played==0" :src="arrangement.slot5.imgpath" >{{(arrangement.highestDamage +arrangement.lowestDamage/2)}}W</span>
+                        <span v-if="arrangement.expectedDamage==0 && arrangement.played==0" :src="arrangement.slot5.imgpath" >{{(arrangement.highestDamage +arrangement.lowestDamage)/2}}W</span>
                         <span v-if="arrangement.highestDamage==0 && arrangement.lowestDamage==0 && arrangement.played==0" :src="arrangement.slot5.imgpath">{{arrangement.expectedDamage}}W</span>
                         <span v-if="arrangement.played==1" :src="arrangement.slot5.imgpath" :style="arrangement.played==1 ? 'opacity:0.8':''">{{arrangement.playedDamage}}W</span>
                     </div>
@@ -50,7 +50,7 @@
             <div class="d-flex mx-5 my-3 justify-center" v-if="arrangement.played==0">
                 <span class="mx-5" v-if="arrangement.expectedDamage==0" >Highest Damage: {{arrangement.highestDamage}}</span>
                 <span class="mx-5" v-if="arrangement.expectedDamage==0" >Lowest Damage: {{arrangement.lowestDamage}}</span>
-                <span class="mx-5" v-if="arrangement.expectedDamage==0" >Average Damage: {{(arrangement.highestDamage +arrangement.lowestDamage/2)}}</span>
+                <span class="mx-5" v-if="arrangement.expectedDamage==0" >Average Damage: {{(arrangement.highestDamage +arrangement.lowestDamage)/2}}</span>
                 <span class="mx-5" v-if="arrangement.highestDamage==0 && arrangement.lowestDamage==0" >ExpectedDamage: {{arrangement.expectedDamage}}</span>
             </div>
             <div class="d-flex mx-5 my-4 justify-center">
