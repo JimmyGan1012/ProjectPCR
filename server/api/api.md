@@ -147,5 +147,25 @@ API explanation:
             res:{
                 allBoxes:[..,..,..]
             }
+        },
+
+        "/postTimeLine"{
+            method:post,
+            req:{
+                month,
+                year,
+                bossStage,
+                bossNum,
+                timeLineText,
+                slot1,
+                slot2,
+                slot3,
+                slot4,
+                slot5,
+                qualifiedDamage,
+            }
+            res:{
+                insertSuccess
+            }
         }
     }

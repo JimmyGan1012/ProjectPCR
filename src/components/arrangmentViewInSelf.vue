@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex justify-center align-center mx-auto my-1" >
-    <v-dialog v-model="dialogOn" width=600>
+    <!-- <v-dialog v-model="dialogOn" width=600>
       <template v-slot:activator="{on,attrs}" max-width="600px">
         <v-btn icon v-bind="attrs" v-on="on">
           <v-icon color="blue-grey lighten-1">mdi-circle-edit-outline</v-icon>
@@ -154,7 +154,7 @@
           </v-container>
         </v-form>
       </v-card>
-    </v-dialog>
+    </v-dialog> -->
 
     <div class="d-flex flex-column justify-center align-center" width="100" height="50">
       <span style="width:100px; text-align:center">Round:{{arrangement.round}}</span>
@@ -202,7 +202,7 @@
       style="width:60px; text-align:center"
     >{{arrangement.playedDamage}}W</span>
 
-    <v-dialog max-width=400>
+    <v-dialog max-width=400 v-model="dialogOn">
       <template v-slot:activator="{on,attrs}" scrollable max-width="600px">
         <v-btn icon v-bind="attrs" v-on="on">
           <v-icon 
@@ -222,7 +222,7 @@
           suffix="W">
 
         </v-text-field>
-        <v-btn class="success mb-4">Confirm</v-btn>
+        <v-btn class="success mb-4" @click="editArrangement">Confirm</v-btn>
       </v-card>
       <v-card class="d-flex flex-column justify-center align-center mx-0" max-width=400 v-if="arrangement.played==1">
         <v-card-title class="mx-5 my-5">Checked Played Damage:  {{arrangement.playedDamage}}W</v-card-title>
@@ -276,50 +276,49 @@ export default {
       return true;
     },
     //edit the edtiedArrangement
-    edit: function({ name: name, value: value }) {
-      if (this.editedArrangement[name] != {}) {
-        this.editedArrangement[name] = value;
-        console.log("this.editedArrangement[" + name + "]=" + value);
-      } else {
-        console.log("edit error, editedArrangement." + name + " DNE");
-      }
-    },
-    submit: function() {
+    // edit: function({ name: name, value: value }) {
+    //   if (this.editedArrangement[name] != {}) {
+    //     this.editedArrangement[name] = value;
+    //     console.log("this.editedArrangement[" + name + "]=" + value);
+    //   } else {
+    //     console.log("edit error, editedArrangement." + name + " DNE");
+    //   }
+    // },
+    editArrangement: function() {
 
-      if(!this.editedArrangement.played){
-        this.editedArrangement.playedDamage=0
-      }
+      // if(!this.editedArrangement.played){
+      //   this.editedArrangement.playedDamage=0
+      // }
 
-      if(this.editedArrangement.expectedDamage<=0 && this.editedArrangement.highestDamage<=0 && this.editedArrangement.lowestDamage<=0){
-        alert("Damage can't be less than 0")
-        return
-      }
+      // if(this.editedArrangement.expectedDamage<=0 && this.editedArrangement.highestDamage<=0 && this.editedArrangement.lowestDamage<=0){
+      //   alert("Damage can't be less than 0")
+      //   return
+      // }
 
-      if(this.editedArrangement.round<=0){
-        alert("Round Number can't be less than 0")
-        return
-      }
+      // if(this.editedArrangement.round<=0){
+      //   alert("Round Number can't be less than 0")
+      //   return
+      // }
 
-      if(this.editedArrangement.played && this.editedArrangement.playedDamage<=0){
-        alert("Damage can't be less than 0")
-        return
-      }
+      // if(this.editedArrangement.played && this.editedArrangement.playedDamage<=0){
+      //   alert("Damage can't be less than 0")
+      //   return
+      // }
 
-      if(this.editedArrangement.slot1==""|| this.editedArrangement.slot2=="" || this.editedArrangement.slot3=="" || this.editedArrangement.slot4=="" || this.editedArrangement.slot5==""){
-        alert("Character Not fully selected")
-        return
-      }
-
+      // if(this.editedArrangement.slot1==""|| this.editedArrangement.slot2=="" || this.editedArrangement.slot3=="" || this.editedArrangement.slot4=="" || this.editedArrangement.slot5==""){
+      //   alert("Character Not fully selected")
+      //   return
+      // }
+      this.editedArrangement.played=1
       this.$http
             .post("/api/editArrangement",this.editedArrangement)
             .then((res)=>{
               if(res.body.editArrangementSuccess){
                 alert("editSuccessed")
-                this.dialogOn=false
               }else{
-                alert("Problem Encountered, please try again")
-                this.dialogOn=false
+                alert("Problem Encountered, please try again")   
               }
+              this.dialogOn=false
               this.$emit("updateAllInfo")
             },(res)=>{
               alert("Problem Encountered, server rejected, please try again")

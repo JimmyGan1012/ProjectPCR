@@ -8,6 +8,8 @@ import add from "../components/add"
 import homepage from "../components/homepage"
 import currentInfo from "../components/currentInfo"
 import selfBox from "../components/selfBox"
+import timeLine from "../components/timeLine"
+import timeLineInsert from "../components/timeLineInsert"
 
 Vue.use(Router)
 
@@ -52,6 +54,16 @@ export default new Router({
       path:'/selfBox',
       name:"selfBox",
       component:selfBox
+    },
+    {
+      path:'/timeLine',
+      name:"timeLine",
+      component:timeLine
+    },
+    {
+      path:'/timeLineInsert',
+      name:"timeLineInsert",
+      component:timeLineInsert
     }
   ]
 })

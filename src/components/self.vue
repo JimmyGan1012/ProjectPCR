@@ -1,21 +1,71 @@
 <template>
   <v-container>
-    <h1>here's the SELF page</h1>
     <v-card max-width="600px" class="mx-auto my-5" flat>
       <div class="d-flex" v-for="(day,index) in currentUser()" :key="index">
         <v-card class="my-2 mx-0" width="100%" v-if="day.length!=0" elevation="13">
           <v-treeview :items="[{name:index,children:day}]">
             <template v-slot:label="{item,leaf}">
               <arrangmentViewInSelf v-if="leaf" :arrangement="item" @updateAllInfo="updateAllInfo"></arrangmentViewInSelf>
-              <v-card-title class="text-body-1" v-if="!leaf">第{{index+1}}天的排刀</v-card-title>
+              <v-card-title class="text-body-1" v-if="!leaf">第{{index+1}}天你的排刀</v-card-title>
             </template>
           </v-treeview>
         </v-card>
       </div>
     </v-card>
     <v-card max-width="600px" class="mx-auto">
-      <v-card-title>Make new Arrangement</v-card-title>
-      <v-form>
+      <v-card-title>新增排刀</v-card-title>
+      <v-row>
+          <v-col class="py-0 px-0 ml-5">
+            <v-text-field
+              ref="roundNumber"
+              label="周目"
+              prepend-icon="mdi-knife-military"
+              class="mx-0 my-0"
+              type="number"
+              :rules="[rule]"
+            ></v-text-field>
+          </v-col>
+          <v-col class="py-0 px-0">
+            <v-select
+              prepend-icon="mdi-google-downasaur"
+              label="X王"
+              class="my-0 mx-1"
+              :items="[1,2,3,4,5]"
+              ref="bossNumber"
+            ></v-select>
+          </v-col>
+          <v-col class="py-0 px-0 mr-5">
+            <v-select
+              prepend-icon="mdi-calendar-month"
+              label="第X天"
+              class="my-0 mx-0"
+              :items="[1,2,3,4,5,6,7]"
+              ref="day"
+            ></v-select>
+          </v-col>
+        </v-row>
+
+        <div v-if="getBossNumber()" class="d-flex justify-center flex-column my-5"> 
+          <v-btn v-for="(arrangementSelection,index) in allTimeLines[this.$refs.bossNumber.lazyValue-1]" 
+          :key="index"
+          @click="selected(arrangementSelection)"
+          :color="arrangementSelection.id==selectedArrangement.id? 'red':'white'"
+          :class="arrangementSelection.id==selectedArrangement.id? 'white--text mx-auto my-2':'mx-auto my-2'"
+          max-width="225">
+                    <v-img max-width=35 max-height=35 :src="arrangementSelection.slot1.imgpath"></v-img>
+                    <v-img max-width=35 max-height=35 :src="arrangementSelection.slot2.imgpath"></v-img>
+                    <v-img max-width=35 max-height=35 :src="arrangementSelection.slot3.imgpath"></v-img>
+                    <v-img max-width=35 max-height=35 :src="arrangementSelection.slot4.imgpath"></v-img>
+                    <v-img max-width=35 max-height=35 :src="arrangementSelection.slot5.imgpath"></v-img>
+                    <span class="my-auto mx-auto">{{arrangementSelection.qualifiedDamage}}W</span>
+          </v-btn>
+        </div>
+        <div id="submit button" class="d-flex flex-row mx-auto pb-10 justify-center">
+          <v-btn class="success" @click="submit">Submit</v-btn>
+          <v-progress-circular v-if="formInSubmission" indeterminate color="green"></v-progress-circular>
+        </div>
+        
+      <!-- <v-form>
         <v-row>
           <v-col class="py-0 px-0 ml-5">
             <v-text-field
@@ -143,7 +193,7 @@
           <v-progress-circular v-if="formInSubmission" indeterminate color="green"></v-progress-circular>
           <v-spacer></v-spacer>
         </div>
-      </v-form>
+      </v-form> -->
     </v-card>
   </v-container>
 </template>
@@ -152,7 +202,7 @@
 import popbox from "./popbox";
 import arrangmentViewInSelf from "./arrangmentViewInSelf";
 export default {
-  props: ["users", "userLoggedIn"],
+  props: ["users", "userLoggedIn","allTimeLines"],
   data: function() {
     return {
       rule: function(value) {
@@ -164,7 +214,9 @@ export default {
       selectedCharacters: ["", "", "", "", ""],
       damSelection: false,
       madeAlready: false,
-      formInSubmission: false
+      formInSubmission: false,
+      pageMounted:false,
+      selectedArrangement:{}
     };
   },
   components: {
@@ -176,116 +228,34 @@ export default {
       this.selectedCharacters = data.selectedCharacters;
     },
     submit: function() {
-      if (
-        this.userLoggedIn != "" &&
-        this.$refs.roundNumber.lazyValue &&
-        this.$refs.day.lazyValue
-      ) {
-        if (this.$refs.roundNumber.lazyValue <= 0) {
-          alert("round number must be larger than 0");
-          return;
-        }
-      } else {
-        alert("missing required data");
-        return;
-      }
-      if (this.damSelection) {
-        //using hightest & lowest
-        if (
-          this.$refs.highestDamage.lazyValue &&
-          this.$refs.lowestDamage.lazyValue
-        ) {
-          if (
-            this.$refs.highestDamage.lazyValue <= 0 ||
-            this.$refs.lowestDamage.lazyValue <= 0
-          ) {
-            alert("Damage must be larger than 0");
-            return;
-          }
-          if(this.$refs.highestDamage.lazyValue<=this.$refs.lowestDamage.lazyValue){
-            alert("Highest Damage must be larger than Lowest Damage");
-            return;
-          }
-        } else {
-          alert("missing required data");
-          return;
-        }
-      } else {
-        //using expected
-        if (this.$refs.expectedDamage.lazyValue) {
-          if (this.$refs.expectedDamage.lazyValue <= 0) {
-            alert("Damage must be larger than 0");
-            return;
-          }
-        } else {
-          alert("missing required data");
-          return;
-        }
-      }
-
-      if (this.madeAlready) {
-        if (this.$refs.playedDamage.lazyValue) {
-          if (this.$refs.playedDamage.lazyValue <= 0) {
-            alert("Damage must be larger than 0");
-            return;
-          }
-        } else {
-          alert("missing required data");
-          return;
-        }
-      }
-
-      var roundNumber = parseInt(this.$refs.roundNumber.lazyValue);
-      var bossNumber = this.$refs.bossNumber.lazyValue;
-      var selectedCharactersName = [];
-      var dayNum = this.$refs.day.lazyValue;
-      for (var character of this.selectedCharacters) {
-        if (character) {
-          selectedCharactersName.push(character.name);
-        } else {
-          selectedCharactersName.push("");
-        }
-      }
-      var data = {
-        username: this.userLoggedIn,
-        round: roundNumber,
-        bossID: bossNumber,
-        slot1: selectedCharactersName[0],
-        slot2: selectedCharactersName[1],
-        slot3: selectedCharactersName[2],
-        slot4: selectedCharactersName[3],
-        slot5: selectedCharactersName[4],
-        day: dayNum,
-        month: this.$parent.$parent.currentInfo.month,
-        year: this.$parent.$parent.currentInfo.year,
-        played: this.madeAlready
-      };
-      if (this.damSelection) {
-        //highest & lowest
-        var highestDamage = parseInt(this.$refs.highestDamage.lazyValue);
-        var lowestDamage = parseInt(this.$refs.lowestDamage.lazyValue);
-        data["highestDamage"] = highestDamage;
-        data["lowestDamage"] = lowestDamage;
-        data["expectedDamage"] = 0;
-      } else {
-        //expectedDamage
-        var expectedDamage = parseInt(this.$refs.expectedDamage.lazyValue);
-        data["expectedDamage"] = expectedDamage;
-        data["highestDamage"] = 0;
-        data["lowestDamage"] = 0;
-      }
-      if (this.madeAlready) {
-        var playedDamage = parseInt(this.$refs.playedDamage.lazyValue);
-        data["playedDamage"] = playedDamage;
-      } else {
-        data["playedDamage"] = 0;
-      }
-
-      if(data.slot1=="" || data.slot2==""|| data.slot3==""|| data.slot4==""|| data.slot5==""){
-        alert("角色没有选择全，请确认有5个角色再提交")
+      if(!(this.$refs.bossNumber.lazyValue && this.$refs.roundNumber.lazyValue && this.$refs.day.lazyValue && this.selectedArrangement.id)){
+        alert("Missing Required Info")
         return
       }
 
+      if(this.$refs.bossNumber.lazyValue<=0){
+        alert("Wrong Round Number")
+        return
+      }
+
+      var selectedID=this.selectedArrangement.id
+      var day = this.$refs.day.lazyValue;
+      var data = {
+        username: this.userLoggedIn,
+        round: parseInt(this.$refs.roundNumber.lazyValue),
+        bossID: this.$refs.bossNumber.lazyValue,
+        slot1: this.selectedArrangement.slot1.name,
+        slot2: this.selectedArrangement.slot2.name,
+        slot3: this.selectedArrangement.slot3.name,
+        slot4: this.selectedArrangement.slot4.name,
+        slot5: this.selectedArrangement.slot5.name,
+        day: this.$refs.day.lazyValue,
+        month: this.selectedArrangement.month,
+        year: this.selectedArrangement.year,
+        timeLineID:this.selectedArrangement.id,
+        qualifiedDamage:this.selectedArrangement.qualifiedDamage
+      }
+      
       if(this.currentUser()[data.day-1].length>=3){
         alert("第"+data.day+"天的刀数已满三刀，请先删除已有的3刀")
         return
@@ -331,11 +301,26 @@ export default {
       console.log("currentUserSet, :", currentUser);
       return currentUser;
     },
+    selected:function(arrangementSelection){
+      if(this.selectedArrangement.id==arrangementSelection.id){
+        this.selectedArrangement={}
+      }else{
+        this.selectedArrangement=arrangementSelection
+      }
+    },
     updateAllInfo:function(){
       this.$emit("updateAllInfo")
+    },
+    getBossNumber:function(){
+      if(this.pageMounted){
+        return(this.$refs.bossNumber.lazyValue)
+      }else{
+        return null
+      }
     }
   },
   mounted: function() {
+    this.pageMounted=true
     this.$emit("pageMounted");
   }
 };

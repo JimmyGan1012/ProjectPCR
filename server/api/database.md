@@ -36,5 +36,18 @@ Database:
             id
             username
             box_JSON
+        },
+        TimeLines:{
+            month:<int> 1-12,
+            year:<int> 2000-2099,
+            bossStage <string>,
+            bossNum <int>,
+            timeLineText <string>,
+            slot1 <string>,
+            slot2 <string>,
+            slot3 <string>,
+            slot4 <string>,
+            slot5 <string>,
+            qualifiedDamage:<int>
         }
     }

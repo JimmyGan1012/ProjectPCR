@@ -54,7 +54,7 @@
           max-width="225"
         >
           <span class="text-subtitle-1 px-0 align-center">
-            Boss 1 HP:{{getBossDam(roundNum,1).min}}~{{getBossDam(roundNum,1).max}}/{{info.bossHP_2}}W
+            Boss 1 HP:{{getBossDam(roundNum,1).reserved}}/{{getBossDam(roundNum,1).real}}W
             <br />
           </span>
         </v-card>
@@ -65,7 +65,7 @@
           min-width="225"
           max-width="225"
         >
-          <span class="text-subtitle-1 px-0 align-center">Boss 2 HP:{{getBossDam(roundNum,2).min}}~{{getBossDam(roundNum,2).max}}/{{info.bossHP_2}}W</span>
+          <span class="text-subtitle-1 px-0 align-center">Boss 2 HP:{{getBossDam(roundNum,2).reserved}}/{{getBossDam(roundNum,2).real}}W</span>
         </v-card>
         <v-divider vertical></v-divider>
 
@@ -75,7 +75,7 @@
           min-width="225"
           max-width="225"
         >
-          <span class="text-subtitle-1 px-0 align-center">Boss 3 HP:{{getBossDam(roundNum,3).min}}~{{getBossDam(roundNum,3).max}}/{{info.bossHP_3}}W</span>
+          <span class="text-subtitle-1 px-0 align-center">Boss 3 HP:{{getBossDam(roundNum,3).reserved}}/{{getBossDam(roundNum,3).real}}W</span>
         </v-card>
         <v-divider vertical></v-divider>
 
@@ -85,7 +85,7 @@
           min-width="225"
           max-width="225"
         >
-          <span class="text-subtitle-1 px-0 align-center">Boss 4 HP:{{getBossDam(roundNum,4).min}}~{{getBossDam(roundNum,4).max}}/{{info.bossHP_4}}W</span>
+          <span class="text-subtitle-1 px-0 align-center">Boss 4 HP:{{getBossDam(roundNum,4).reserved}}/{{getBossDam(roundNum,4).real}}W</span>
         </v-card>
         <v-divider vertical></v-divider>
 
@@ -95,7 +95,7 @@
           min-width="225"
           max-width="225"
         >
-          <span class="text-subtitle-1 px-0 align-center">Boss 5 HP:{{getBossDam(roundNum,5).min}}~{{getBossDam(roundNum,5).max}}/{{info.bossHP_5}}W</span>
+          <span class="text-subtitle-1 px-0 align-center">Boss 5 HP:{{getBossDam(roundNum,5).reserved}}/{{getBossDam(roundNum,5).real}}W</span>
         </v-card>
       </div>
 
@@ -190,49 +190,40 @@ export default {
   methods: {
     roundMinus: function() {
       if (this.roundNum > 1) {
-        this.roundNum -= 1;
+        this.roundNum =parseInt(this.roundNum)-1;
         const Cookies=require("js-cookie")
         Cookies.set("roundNumber",this.roundNum,{ expires: 7 })
       }
     },
     roundPlus:function(){
-        this.roundNum += 1;
+        this.roundNum = parseInt(this.roundNum)+1;
         const Cookies=require("js-cookie")
         Cookies.set("roundNumber",this.roundNum,{ expires: 7 })
     },
     getBossDam: function(roundNum, bossNum) {
-      var max = this.info[`bossHP_${bossNum}`];
-      var min = this.info[`bossHP_${bossNum}`];
+      var reserved = this.info[`bossHP_${bossNum}`];
+      var real = this.info[`bossHP_${bossNum}`];
       for (var user of this.users) {
         if (user.places[`round${roundNum}_boss${bossNum}`]) {
           for (var arrangement of user.places[
             `round${roundNum}_boss${bossNum}`
           ]) {
             if (arrangement.played) {
-              max-=arrangement.playedDamage
-              min-=arrangement.playedDamage
+              real-=arrangement.playedDamage
+              reserved-= arrangement.playedDamage
             } else {
-              if (arrangement.expectedDamage == 0) {
-                max -= arrangement.lowestDamage;
-                min -= arrangement.highestDamage;
-              } else if (
-                arrangement.highestDamage == 0 &&
-                arrangement.lowestDamage == 0
-              ) {
-                max -= arrangement.expectedDamage;
-                min -= arrangement.expectedDamage;
-              }
+              reserved -= arrangement.qualifiedDamage
             }
           }
         }
       }
-      return { max: max, min: min };
+      return { reserved: reserved, real: real };
     }
   },
   created:function(){
     const Cookies=require("js-cookie")
     if(Cookies.get("roundNumber")){
-      this.roundNum=Cookies.get("roundNumber")
+      this.roundNum=parseInt(Cookies.get("roundNumber"))
     }
   }
 };

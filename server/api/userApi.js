@@ -135,7 +135,8 @@ router.get('/getAllArrangements', (req, res) => {
                 bossHP_5: {},
             },
             getSuccessful: false,
-            allBoxes:[]
+            allBoxes:[],
+            allTimeLines:[]
         }
         var sql = 'SELECT * from CurrentInfo'
         conn.query(sql, function (err, result_1) {
@@ -175,12 +176,23 @@ router.get('/getAllArrangements', (req, res) => {
                         if (err) throw err
                         if(result_4){
                             data.allBoxes=result_4
-                            data.getSuccessful = true
                         }else{
                             console.log("Problem encountered at getting allBoxes")
                             data.getSuccessful = false
                         }
-                        res.json({ data: data })
+                        var sql = 'SELECT * from TimeLines WHERE month=? and year=?'
+                        conn.query(sql, [data.CurrentInfo.month, data.CurrentInfo.year], function (err, result_5) {
+                            if (err) throw err
+                            if(result_5){
+                                console.log(result_5)
+                                data.getSuccessful = true
+                                data.allTimeLines=result_5
+                            }else{
+                                console.log("Problem encountered at getting TimeLines")
+                                data.getSuccessful = false 
+                            }
+                            res.json({ data: data })
+                        })
                     })
                 })
             })
@@ -194,8 +206,8 @@ router.post("/postArrangement", (req, res) => {
     pool.getConnection(function (err, conn) {
         if (err) throw err;
         var data = req.body
-        var sql = 'INSERT INTO Arrangements (id,username,round,bossID,slot1,slot2,slot3,slot4,slot5,day,month,year,highestDamage,lowestDamage,expectedDamage,played,playedDamage) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
-        conn.query(sql, [data.id,
+        var sql = 'INSERT INTO Arrangements (username,round,bossID,slot1,slot2,slot3,slot4,slot5,day,month,year,timeLineID,qualifiedDamage) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)'
+        conn.query(sql, [
         data.username,
         data.round,
         data.bossID,
@@ -207,11 +219,8 @@ router.post("/postArrangement", (req, res) => {
         data.day,
         data.month,
         data.year,
-        data.highestDamage,
-        data.lowestDamage,
-        data.expectedDamage,
-        data.played,
-        data.playedDamage], function (err, result) {
+        data.timeLineID,
+        data.qualifiedDamage], function (err, result) {
             if (err) throw err;
             if (result) {
                 res.json({
@@ -292,7 +301,7 @@ router.post("/editArrangement", (req, res) => {
             } else {
                 console.log("Error in deleting element")
             }
-            var sql = 'INSERT INTO Arrangements (id,username,round,bossID,slot1,slot2,slot3,slot4,slot5,day,month,year,highestDamage,lowestDamage,expectedDamage,played,playedDamage) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+            var sql = 'INSERT INTO Arrangements (id,username,round,bossID,slot1,slot2,slot3,slot4,slot5,day,month,year,played,playedDamage,timeLineID,qualifiedDamage) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
             conn.query(sql, [arrangement.id,
             arrangement.username,
             arrangement.round,
@@ -305,11 +314,10 @@ router.post("/editArrangement", (req, res) => {
             arrangement.day,
             arrangement.month,
             arrangement.year,
-            arrangement.highestDamage,
-            arrangement.lowestDamage,
-            arrangement.expectedDamage,
             arrangement.played,
-            arrangement.playedDamage], function (err, result_2) {
+            arrangement.playedDamage,
+            arrangement.timeLineID,
+            arrangement.qualifiedDamage], function (err, result_2) {
                 if (err) throw err;
                 if (result_2) {
                     editArrangementSuccess = true;
@@ -368,6 +376,33 @@ router.post("/postBox", (req, res) => {
                 res.json({ "insertSuccess": insertSuccess })
             })
         }) 
+        conn.release();
+    })
+})
+
+router.post("/postTimeLine",(req,res)=>{
+    pool.getConnection(function(err,conn){
+        if(err) throw err;
+        var month=req.body.month
+        var year=req.body.year
+        var bossStage=req.body.bossStage
+        var bossNum=req.body.bossNum
+        var timeLineText=req.body.timeLineText
+        var slot1=req.body.slot1
+        var slot2=req.body.slot2
+        var slot3=req.body.slot3
+        var slot4=req.body.slot4
+        var slot5=req.body.slot5
+        var qualifiedDamage=req.body.qualifiedDamage
+        var insertSuccess= false
+        var sql = "INSERT into TimeLines (month,year,bossStage,bossNum,timeLineText,slot1,slot2,slot3,slot4,slot5,qualifiedDamage) VALUES(?,?,?,?,?,?,?,?,?,?,?)"
+        conn.query(sql, [month,year,bossStage,bossNum,timeLineText,slot1,slot2,slot3,slot4,slot5,qualifiedDamage], function (err, result) {
+            if(err) throw err
+            if(result){
+                insertSuccess=true
+            }
+            res.json({insertSuccess:insertSuccess})
+        })
         conn.release();
     })
 })

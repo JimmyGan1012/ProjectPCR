@@ -6,11 +6,23 @@
       :users="allUsers"
       :info="currentInfo"
       :userLoggedIn="username"
+      :allTimeLines="allTimeLines"
       @pageMounted="loginCheck"
       @updateAllInfo="getAllInfo"
       @loginSuccesful="login_successful"
       ref="routerComponent"
+      v-if="allUsers!=0"
     ></router-view>
+    <v-card 
+      class="mx-auto d-flex flex-column justify-center align-center my-12" 
+      flat
+      v-if="allUsers==0"
+      min-width=200 
+      min-height=60>
+      <v-img src="../static/loading.gif"></v-img>
+      LOADING
+      <v-progress-linear indeterminate class="my-2"></v-progress-linear>
+    </v-card>
   </v-app>
 </template>
 
@@ -42,7 +54,8 @@ export default {
         bossHP_4: 0,
         bossHP_5: 0
       },
-      allUsers: []
+      allUsers: [],
+      allTimeLines:[]
     };
   },
   components: {
@@ -70,6 +83,34 @@ export default {
             this.currentInfo.bossHP_4 = res.body.data.CurrentInfo.bossHP_4;
             this.currentInfo.bossHP_5 = res.body.data.CurrentInfo.bossHP_5;
             this.allUsers = [];
+            this.allTimeLines=[[],[],[],[],[]]
+
+            for (var timeLine of res.body.data.allTimeLines){
+              for(var i=0;i<=4;i++){
+                if(timeLine.bossNum==(i+1)){
+                  for (var character of characters) {
+                    if (character.name == timeLine.slot1) {
+                      timeLine.slot1 = character;
+                    }
+                    if (character.name == timeLine.slot2) {
+                      timeLine.slot2 = character;
+                    }
+                    if (character.name == timeLine.slot3) {
+                      timeLine.slot3 = character;
+                    }
+                    if (character.name == timeLine.slot4) {
+                      timeLine.slot4 = character;
+                    }
+                    if (character.name == timeLine.slot5) {
+                      timeLine.slot5 = character;
+                    }
+                  }
+                  this.allTimeLines[i].push(timeLine)
+                }
+              }
+            }
+            console.log("ALLTIMELINES:",this.allTimeLines)
+
             for (var user of res.body.data.users) {
               this.allUsers.push({
                 id: user.id,
@@ -127,6 +168,7 @@ export default {
                   }
               }
             }
+            console.log("allUsers:", this.allUsers);
             if(this.$refs.routerComponent.updateBox){
               this.$refs.routerComponent.updateBox()
             }

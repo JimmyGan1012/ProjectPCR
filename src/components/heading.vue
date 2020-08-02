@@ -41,6 +41,7 @@ export default {
             drawerOpen:false,
             items:[
                 {title: "guild", icon:"mdi-file-table-box",route:'/guild'},
+                {title: "timeLine",icon:"mdi-timeline-clock-outline",route:"/timeLine"},
                 {title: "self" , icon:"mdi-account-box",route:'/self'},
                 {title: "yourBox",icon:"mdi-apps-box",route:"/selfBox"}
             ]
